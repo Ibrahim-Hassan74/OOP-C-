@@ -104,11 +104,11 @@
         }
     }
 
-    public class Developer : Employees
+    public class Developers : Employees
     {
         private bool TaskCompleted;
         public const decimal Commission = 0.03m;
-        public Developer(int id, string name, decimal loggedHours, decimal wage, bool TaskCompleted) : base(id, name, loggedHours, wage)
+        public Developers(int id, string name, decimal loggedHours, decimal wage, bool TaskCompleted) : base(id, name, loggedHours, wage)
         {
             this.TaskCompleted = TaskCompleted;
         }
