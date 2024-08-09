@@ -1,131 +1,167 @@
-﻿namespace maincs.Models
+﻿namespace Model
 {
-    public class Employees
+    public class Library
     {
-        public const int TotalHours = 176;
-        public const decimal OverTimeRate = 1.25m;
-        protected int id;
-        protected string name;
-        protected decimal LoggedHours;
-        protected decimal Wage;
-
-        protected Employees(int id, string name, decimal loggedHours, decimal wage)
+        List<Item> items;
+        public Library()
         {
-            this.id = id;
-            this.name = name;
-            LoggedHours = loggedHours;
-            Wage = wage;
+            items = new List<Item>();
         }
-        private decimal BasicSalary()
+        public void AddItem(Item item)
         {
-            return Wage * LoggedHours;
+            items.Add(item);
         }
-        private decimal OverTimeSalary()
+        public void CheckOutItem(int isbn)
         {
-            var val = Max(0, LoggedHours - TotalHours);
-            return (val * Wage * OverTimeRate);
+            bool ok = false;
+            foreach (var item in items)
+            {
+                if (item.Isbn == isbn && item.IsAvailable)
+                {
+                    ok = true;
+                    item.IsAvailable = false;
+                    break;
+                }
+            }
+            if (ok)
+                Console.WriteLine("Item is available");
+            else
+                Console.WriteLine("Item is not available");
         }
-
-        public virtual decimal Calaulate()
+        public void ReturnItem(int isbn)
         {
-            return BasicSalary() + OverTimeSalary();
+            foreach (var item in items)
+            {
+                if (item.Isbn == isbn && !item.IsAvailable)
+                {
+                    item.IsAvailable = true;
+                    break;
+                }
+            }
+            Console.WriteLine("Done ..");
         }
-
-        public override string ToString()
+        public void ListAvailableItems()
         {
-            return $"{GetType().ToString().Replace("maincs.Models.", "")}" +
-                    $"\nId : {id}" +
-                    $"\nName : {name}" +
-                    $"\nLogged Hours : {LoggedHours}" +
-                    $"\nWage : {Round(Wage, 2):N0}" +
-                    $"\nBasic Salary : ${Round(BasicSalary(), 3):N0}" +
-                    $"\nOvertime Salary : ${Round(OverTimeSalary(), 3):N0}";
-        }
-
-    }
-    public class Managers : Employees
-    {
-        public const decimal Allowance = 0.05m;
-        public Managers(int id, string name, decimal loggedHours, decimal wage) : base(id, name, loggedHours, wage) { }
-        private decimal CalaculateAllowance()
-        {
-            return Allowance * base.Calaulate();
-        }
-        public override decimal Calaulate()
-        {
-            return base.Calaulate() + CalaculateAllowance();
-        }
-        public override string ToString()
-        {
-            return base.ToString() +
-                  $"\nAllowance: ${Round(CalaculateAllowance(), 3):N0}" +
-                  $"\nTotal Salary: ${Round(this.Calaulate(), 3):N0}";
+            foreach (var item in items)
+            {
+                if (item.IsAvailable)
+                {
+                    item.DisplayInfo();
+                    Console.WriteLine();
+                }
+            }
         }
     }
-
-    public class Maintanence : Employees
+    public class Item
     {
-        public const decimal HardShip = 100m;
-        public Maintanence(int id, string name, decimal loggedHours, decimal wage) : base(id, name, loggedHours, wage) { }
-        public override decimal Calaulate()
+        private String title;
+        private int isbn;
+        private bool isAvailable;
+        public String Title
         {
-            return base.Calaulate() + HardShip;
+            get
+            {
+                return title;
+            }
+            set
+            {
+                title = value;
+            }
         }
-        public override string ToString()
+        public int Isbn
         {
-            return base.ToString() +
-                  $"\nHardShip: ${Round(HardShip, 3):N0}" +
-                  $"\nTotal Salary: ${Round(this.Calaulate(), 3):N0}";
+            get
+            {
+                return isbn;
+            }
+            set
+            {
+                isbn = value;
+            }
         }
-    }
-
-    public class Sales : Employees
-    {
-        private decimal SalesVolume;
-        private decimal Commission;
-        public Sales(int id, string name, decimal loggedHours, decimal wage, decimal SalesVolume, decimal Commission) : base(id, name, loggedHours, wage)
-        { 
-            this.SalesVolume = SalesVolume;
-            this.Commission = Commission;
-        }
-        private decimal CalaculateBonus()
+        public bool IsAvailable
         {
-            return SalesVolume * Commission;
+            get
+            {
+                return isAvailable;
+            }
+            set
+            {
+                isAvailable = value;
+            }
         }
-        public override decimal Calaulate()
+        public Item(String title, int isbn, bool isAvailable)
         {
-            return base.Calaulate() + CalaculateBonus();
+            this.title = title;
+            this.isbn = isbn;
+            this.isAvailable = isAvailable;
         }
-        public override string ToString()
+        public virtual void DisplayInfo()
         {
-            return base.ToString() +
-                  $"\nBonus: ${Round(CalaculateBonus(), 3):N0}" +
-                  $"\nTotal Salary: ${Round(this.Calaulate(), 3):N0}";
+            Console.WriteLine($"Title is {title}\nisbn is {isbn}\n");
         }
     }
 
-    public class Developers : Employees
+    public class Movie : Item
     {
-        private bool TaskCompleted;
-        public const decimal Commission = 0.03m;
-        public Developers(int id, string name, decimal loggedHours, decimal wage, bool TaskCompleted) : base(id, name, loggedHours, wage)
+        private String director;
+        private int runtime;
+        public String Director
         {
-            this.TaskCompleted = TaskCompleted;
+            get
+            {
+                return director;
+            }
+            set
+            {
+                director = value;
+            }
         }
-        private decimal CalaculateBonus()
+        public int Runtime
         {
-            return (TaskCompleted ? base.Calaulate() * Commission : 0);
+            get
+            {
+                return runtime;
+            }
+            set
+            {
+                runtime = value;
+            }
         }
-        public override decimal Calaulate()
+        public Movie(String title, int isbn, bool isAvailable, String director, int runtime) : base(title, isbn, isAvailable)
         {
-            return base.Calaulate() + CalaculateBonus();
+            this.director = director;
+            this.runtime = runtime;
         }
-        public override string ToString()
+        public override void DisplayInfo()
         {
-            return base.ToString() +
-                  $"\nTaskCompleted: {(TaskCompleted ? "YES" : "NO")}" +
-                  $"\nBonus: ${Round(CalaculateBonus(), 3):N0}" +
-                  $"\nTotal Salary: ${Round(this.Calaulate(), 3):N0}";
+            base.DisplayInfo();
+            Console.WriteLine($"Director : {director}\nRuntime : {runtime}");
+        }
+    }
+
+    public class Book : Item
+    {
+        private String author;
+        public String Author
+        {
+            get
+            {
+                return author;
+            }
+            set
+            {
+                author = value;
+            }
+        }
+        public Book(String title, int isbn, bool isAvailable, String author) : base(title, isbn, isAvailable)
+        {
+            this.author = author;
+        }
+        public override void DisplayInfo()
+        {
+            base.DisplayInfo();
+            Console.WriteLine($"Author : {author}");
         }
     }
 }
